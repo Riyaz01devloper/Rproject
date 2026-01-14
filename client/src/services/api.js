@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://rproject-1-p9k4.onrender.com",
+   baseURL: import.meta.env.VITE_API_URL
+,
   headers: {
     "Content-Type": "application/json",
   },

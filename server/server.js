@@ -23,13 +23,16 @@ app.use(express.json());
 // CORS (only once)
 app.use(
   cors({
-    origin: ["http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
       "https://rproject-git-main-riyaz-maliks-projects.vercel.app"
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
+    credentials: true,
   })
 );
+
 
 // Logger (BEFORE routes)
 app.use((req, res, next) => {
@@ -109,6 +112,6 @@ Give short advice:
 /* ================= SERVER ================= */
 
 const PORT = 5000;
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0" ,() => {
   console.log(`Server running on port ${PORT}`);
 });

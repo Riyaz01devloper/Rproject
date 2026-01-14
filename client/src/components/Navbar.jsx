@@ -1,23 +1,21 @@
 function Navbar({ onToggleSidebar }) {
   return (
-    <div className="h-14 bg-slate-800 text-white flex items-center px-4 gap-4">
-      {/* Hamburger button */}
-      <button
-        onClick={onToggleSidebar}
-        className="md:hidden focus:outline-none"
-      >
-        <div className="space-y-1">
-          <span className="block w-6 h-0.5 bg-white"></span>
-          <span className="block w-6 h-0.5 bg-white"></span>
-          <span className="block w-6 h-0.5 bg-white"></span>
-        </div>
-      </button>
+    <header className="bg-white shadow px-4 py-3 flex items-center justify-between">
+      
+      {/* LEFT */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={onToggleSidebar}
+          className="md:hidden text-2xl font-bold z-50"
+        >
+          ☰
+        </button>
 
-      <h1 className="font-semibold text-lg">
-        AI Tracker & Guide
-      </h1>
-    </div>
-  )
+        <h1 className="text-xl font-semibold">AI Tracker</h1>
+      </div>
+
+    </header>
+  );
 }
 
-export default Navbar
+export default Navbar;

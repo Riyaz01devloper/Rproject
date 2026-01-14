@@ -5,15 +5,10 @@ function Sidebar({ isOpen }) {
   return (
     <aside
       className={`
-        bg-slate-900 text-white
-        min-h-screen
-        w-64
-        fixed md:static
-        top-0 left-0
-        transform
+        fixed md:static top-0 left-0 h-full w-64 bg-white shadow-lg
+        transform transition-transform duration-300
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
         md:translate-x-0
-        transition-transform duration-300
         z-40
       `}
     >

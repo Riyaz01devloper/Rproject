@@ -1,7 +1,7 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
-import Layout from "./components/layout/Layout";
+import Layout from "./components/layout/layout";
 import Dashboard from "./pages/Dashboard";
 import Skills from "./pages/Skills";
 import Progress from "./pages/Progress";

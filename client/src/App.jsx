@@ -34,7 +34,7 @@ function App() {
       <Route path="/" element={<Layout />}>
          <Route index element={<Navigate to="dashboard" />} /> 
         <Route 
-         path="dashboard" element = { <Dashboard
+         path="/dashboard" element = { <Dashboard
          skills={skills}
        setSkills={setSkills} 
           /> } 

@@ -4,37 +4,35 @@ import cors from "cors";
 import connectDB from "./config/db.js";
 import aiRoutes from "./routes/aiRoutes.js";
 import skillRoutes from "./routes/skillRoutes.js";
-// import {model} from "./ai/ollama.js";
-import  askOllama  from "./ai/ollama.js";
+import authRoutes from "./routes/authRoutes.js";
+import { gemini } from "./ai/gemini.js";
+// import { GoogleGenerativeAI } from "@google/generative-ai";
 
-
+// Load environment variables FIRST
 dotenv.config();
 
-// Connect to database
+
 connectDB();
 
 const app = express();
 
 /* ================= MIDDLEWARE ================= */
 
-// Parse JSON
 app.use(express.json());
 
-// CORS (only once)
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://rproject-git-main-riyaz-maliks-projects.vercel.app"
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
-    credentials: true,
-  })
-);
-
-
-// Logger (BEFORE routes)
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:5173",
+//       "https://rproject-git-main-riyaz-maliks-projects.vercel.app",
+//     ],
+//     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//     allowedHeaders: ["Content-Type",  "Authorization",],
+//     credentials: true,
+//   })
+// );
+app.use(cors());
+// Request logger
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
@@ -42,76 +40,121 @@ app.use((req, res, next) => {
 
 /* ================= ROUTES ================= */
 
-// Test route
+// Test Route
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
-// Skills routes
+// Main Routes
 app.use("/api/skills", skillRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/auth", authRoutes);
 
-
-// ✅ AI TEST ROUTE (POST ONLY)
-// import { model } from "./ai/gemini.js";
-
+/* ================= GEMINI TEST ================= */
 
 app.post("/api/ai/test", async (req, res) => {
   try {
-    const reply = await askOllama(
+    const result = await model.generateContent(
       "Say hello in one short sentence"
     );
 
+    const reply = result.response.text();
+
     res.json({ reply });
   } catch (error) {
-    console.error("Ollama error:", error);
-    res.status(500).json({ error: "Ollama AI request failed" });
+    console.error("Gemini error:", error);
+
+    res.status(500).json({
+      error: "Gemini request failed",
+    });
   }
 });
 
-// import { askOllama } from "./ai/ollama.js";
-
+/* ================= AI SKILL ADVICE ================= */
 app.post("/api/ai/skill-advice", async (req, res) => {
   try {
     const { skills } = req.body;
 
-    if (!skills || skills.length === 0) {
+    if (!skills.length) {
       return res.json({
-        advice: "No skills found. Start by adding some skills first.",
+        advice: "Add some skills first."
       });
     }
 
-    const skillText = skills
-      .map(
-        (s) => `${s.title} (${s.level}) - ${s.progress}%`
-      )
-      .join(", ");
+    const avg =
+      skills.reduce((a, b) => a + b.progress, 0) /
+      skills.length;
 
-    const prompt = `
-You are a career mentor.
-Here are my skills:
-${skillText}
+    let advice = "";
 
-Give short advice:
-1. Strengths
-2. Weaknesses
-3. What to learn next
-`;
-
-    const advice = await askOllama(prompt);
+    if (avg < 30) {
+      advice =
+        "Focus on consistency. Increase progress in your existing skills.";
+    } else if (avg < 70) {
+      advice =
+        "Good progress. Start building projects with your skills.";
+    } else {
+      advice =
+        "Strong progress. Focus on internships, open source and advanced topics.";
+    }
 
     res.json({ advice });
+
   } catch (error) {
-    console.error("AI Skill Advice error:", error);
-    res.status(500).json({ error: "AI advice failed" });
+    res.status(500).json({
+      error: "Advice failed",
+    });
   }
 });
+// app.post("/api/ai/skill-advice", async (req, res) => {
+//   try {
+//     const { skills } = req.body;
 
+//     if (!skills || skills.length === 0) {
+//       return res.json({
+//         advice:
+//           "No skills found. Start by adding some skills first.",
+//       });
+//     }
 
+//     const skillText = skills
+//       .map(
+//         (s) =>
+//           `${s.title} (${s.level}) - ${s.progress || 0}%`
+//       )
+//       .join(", ");
+
+//     const prompt = `
+// You are a career mentor.
+
+// Here are my skills:
+// ${skillText}
+
+// Give short advice:
+// 1. Strengths
+// 2. Weaknesses
+// 3. What to learn next
+// `;
+
+//     // const result = await model.generateContent(prompt);
+
+//     // const advice = result.response.text();
+//     const advice = await gemini(prompt);
+
+//     res.json({ advice });
+//   } catch (error) {
+//     console.error("Gemini advice error:", error);
+
+//     res.status(500).json({
+//       error: "AI advice failed",
+//     });
+//   }
+// });
 
 /* ================= SERVER ================= */
 
-const PORT = 5000;
-app.listen(PORT,"0.0.0.0" ,() => {
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });

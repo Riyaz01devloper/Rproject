@@ -1,26 +1,25 @@
 import express from 'express'
-import { protect } from "../middleware/authMiddleware.js";
 import{
     getSkills,
     addSkills,
     updateSkillProgress,
-    deleteSkill
+    DeleteSkill
 
 } from '../controllers/skillController.js'
 
 const router = express.Router()
 
 // get all skills 
-router.get("/",protect, getSkills)
+router.get("/", getSkills)
 
 // add a new skill
-router.post("/",protect, addSkills)
+router.post("/", addSkills)
 
 // update skill progress
-router.put("/:id",protect, updateSkillProgress)
+router.put("/:_id", updateSkillProgress)
 
 // delete a skill
-router.delete("/:id",protect, deleteSkill)
+router.delete("/:_id", DeleteSkill)
 
 export default router
 

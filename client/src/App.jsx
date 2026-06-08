@@ -7,7 +7,7 @@ import Skills from "./pages/Skills";
 import Progress from "./pages/Progress";
 // import Settings from "./pages/Settings";
 
-import Login from "./pages/Login";
+import Login from "./pages/login";
 import Register from "./pages/Register";
 
 import ProtectedRoute from "./components/ProtectedRoute";

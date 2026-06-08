@@ -14,10 +14,12 @@ import{
 
 
 function ProgressChart({skills}) {
-    const data= skills?.map(skill => ({
-        name:skill.title, 
-        progress:skill.progress, 
-    })) ||[];
+   const data = Array.isArray(skills)
+  ? skills.map(skill => ({
+      name: skill.title,
+      progress: skill.progress,
+    }))
+  : [];
   return (
 
     <div className='bg-white rounded-2xl p-6 shadow-sm mb-6'> 
@@ -27,7 +29,7 @@ function ProgressChart({skills}) {
         
     {data.length===0 ? (  
         <p className='text-sm text-gray-500'>
-            No skills added yet.
+            No skills added yet. 
         </p>
     ) : (
         <ResponsiveContainer width="100%" height={250}>

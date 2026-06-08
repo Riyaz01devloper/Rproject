@@ -7,6 +7,7 @@ import API from "../services/api";
 
 
 
+
 function Dashboard({ skills, setSkills }) {
   const [loading, setLoading] = useState(true);
   const [aiAdvice,setAiAdvice] = useState("");
@@ -14,6 +15,8 @@ function Dashboard({ skills, setSkills }) {
 
   const[aiCommand , setAiCommand] = useState("");
   const[aiResult,setAiResult] = useState("");
+  const [roadmap, setRoadmap] = useState("");
+const [roadmapLoading, setRoadmapLoading] = useState(false);
 
 
 
@@ -70,6 +73,22 @@ function Dashboard({ skills, setSkills }) {
       setAiLoading(false);
     }
   };
+  const generateRoadmap = async () => {
+  try {
+    setRoadmapLoading(true);
+
+    const res = await API.post("/api/ai/roadmap");
+
+    setRoadmap(res.data.roadmap);
+
+  } catch (error) {
+    console.error(error);
+
+    setRoadmap("Roadmap generation failed.");
+  } finally {
+    setRoadmapLoading(false);
+  }
+};
 
   const sendAiCommand = async () => {
   try {
@@ -113,16 +132,18 @@ function Dashboard({ skills, setSkills }) {
     }
   };
 
-  const overallProgress =
-    skills.length === 0
-      ? 0
-      : Math.round(
-          skills.reduce((sum, s) => sum + s.progress, 0) /
-            skills.length
-        );
+ const safeSkills = Array.isArray(skills) ? skills : [];
+
+const overallProgress =
+  safeSkills.length === 0
+    ? 0
+    : Math.round(
+        safeSkills.reduce((sum, s) => sum + (s.progress || 0), 0) /
+          safeSkills.length
+      );
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-gray-100">
+   <div className="flex-1 flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900">
       <main className="p-4 md:p-8 max-w-7xl w-full">
 
         {/* Overall Progress */}
@@ -130,6 +151,7 @@ function Dashboard({ skills, setSkills }) {
           <h3 className="text-lg font-semibold text-gray-800">
             Overall Progress
           </h3>
+         
           <p className="text-3xl font-bold text-blue-600">
             {overallProgress}%
           </p>
@@ -149,9 +171,10 @@ function Dashboard({ skills, setSkills }) {
         <AddSkill onAdd={addSkill} /> 
 
         
-        <div className="bg-white rounded-2xl p-6 shadow-sm mb-6">
+       <div className="bg-white dark:bg-gray-800 dark:text-white rounded-2xl p-6 shadow-sm mb-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold"> Ai skill advisor  </h2>
+
 <button 
 onClick={getAiAdvice}
 disabled = {aiLoading}
@@ -169,6 +192,29 @@ className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
 
           </div>
         </div>
+        <div className="bg-white dark:bg-gray-800 dark:text-white p-6 rounded-2xl shadow-sm mb-6">
+  <div className="flex items-center justify-between">
+    <h2 className="text-xl font-bold">
+      AI Engineer Roadmap
+    </h2>
+
+    <button
+      onClick={generateRoadmap}
+      disabled={roadmapLoading}
+      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+    >
+      {roadmapLoading
+        ? "Generating..."
+        : "Generate Roadmap"}
+    </button>
+  </div>
+
+  {roadmap && (
+    <div className="mt-4 p-4 bg-gray-100 rounded-lg whitespace-pre-wrap text-gray-800">
+      {roadmap}
+    </div>
+  )}
+</div>
 
         <div className="bg-white p-6 rounded-2xl shadow-sm mb-6">
           <h2 className="text-xl font-bold mb-2"> Ai command center
@@ -201,27 +247,22 @@ className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             <p className="text-gray-500">No skills added yet.</p>
           )}
 
-          {skills.map((skill) => (
-            <SkillCard
-              key={skill._id}
-              title={skill.title}
-              level={skill.level}
-              progress={skill.progress}
-              onDelete={() => removeSkill(skill._id)}
-              onIncrease={() =>
-                updateProgress(
-                  skill._id,
-                  Math.min(skill.progress + 5, 100)
-                )
-              }
-              onDecrease={() =>
-                updateProgress(
-                  skill._id,
-                  Math.max(skill.progress - 5, 0)
-                )
-              }
-            />
-          ))}
+        {Array.isArray(skills) &&
+  skills.map((skill) => (
+    <SkillCard
+      key={skill._id}
+      title={skill.title}
+      level={skill.level}
+      progress={skill.progress}
+      onDelete={() => removeSkill(skill._id)}
+      onIncrease={() =>
+        updateProgress(skill._id, Math.min(skill.progress + 5, 100))
+      }
+      onDecrease={() =>
+        updateProgress(skill._id, Math.max(skill.progress - 5, 0))
+      }
+    />
+  ))}
         </div>
       </main>
     </div>
